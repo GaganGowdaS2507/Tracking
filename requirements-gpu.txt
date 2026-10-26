@@ -1,2 +1,6 @@
--r requirements.txt
+# Use this file in a fresh venv instead of requirements.txt for GPU mode.
+Flask>=3.0,<4
+numpy>=1.26
+opencv-python>=4.9
+insightface>=0.7.3
 onnxruntime-gpu>=1.17
