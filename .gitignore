@@ -1,14 +1,14 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *.pyd
 
-# Virtual environment
+# Virtual environments
 .venv/
 venv/
 env/
 
-# Environment variables and secrets
+# Secrets and local configuration
 .env
 .env.*
 !.env.example
@@ -24,10 +24,8 @@ data/member_photos/
 *.log
 logs/
 
-# Editors
+# Editors / OS
 .vscode/
 .idea/
-
-# Operating system
 .DS_Store
 Thumbs.db

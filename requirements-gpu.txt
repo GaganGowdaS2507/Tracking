@@ -1,2 +1,6 @@
--r requirements.txt
+# Optional NVIDIA GPU variant. Create a fresh venv, then install this file instead of requirements.txt.
+Flask>=3.0,<4
+numpy>=1.26
+opencv-python>=4.9
+insightface>=0.7.3
 onnxruntime-gpu>=1.17

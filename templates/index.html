@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BICEP | AI Room Management</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entry / Exit Tracking</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 <div class="app-shell">
   <aside class="sidebar">
-    <div class="brand"><div class="brand-mark">B</div><div><strong>BICEP</strong><small>ROOM INTELLIGENCE</small></div></div>
+    <div class="brand"><div class="brand-mark">T</div><div><strong>TRACKING</strong><small>ROOM INTELLIGENCE</small></div></div>
     <div class="nav-label">WORKSPACE</div>
     <button class="nav active" data-page="dashboard"><span>▦</span> Overview</button>
     <button class="nav" data-page="monitoring"><span>◉</span> Live monitoring <i class="live-dot"></i></button>
@@ -17,64 +17,177 @@
     <button class="nav" data-page="occupancy"><span>⌂</span> Inside now</button>
     <button class="nav" data-page="unknown"><span>⚑</span> Unknown review <b id="unknownBadge" class="badge">0</b></button>
     <div class="nav-label settings-label">CONFIGURATION</div>
-    <button class="nav" data-page="settings"><span>⚙</span> Camera & settings</button>
-    <div class="sidebar-bottom"><div class="system-indicator"><span class="status-dot"></span><div><strong id="sidebarStatus">System starting</strong><small>Local workstation</small></div></div><small class="privacy-note">Local-first · Data stored on this PC</small></div>
+    <button class="nav" data-page="cameras"><span>▣</span> Camera management</button>
+    <button class="nav" data-page="settings"><span>⚙</span> AI & operating settings</button>
+    <div class="sidebar-bottom"><div class="system-indicator"><span class="status-dot"></span><div><strong id="sidebarStatus">Starting</strong><small>Local workstation</small></div></div><small class="privacy-note">Local-first · Data stored on this PC</small></div>
   </aside>
   <main class="main">
-    <header class="topbar"><div><div class="eyebrow" id="dateLabel">BICEP CLUB / WORKSPACE</div><h1 id="pageTitle">Overview</h1></div><div class="top-actions"><span class="local-pill"><span class="status-dot"></span> LOCAL SYSTEM</span><button class="avatar">BC</button></div></header>
+    <header class="topbar"><div><div class="eyebrow" id="dateLabel">LOCAL WORKSPACE</div><h1 id="pageTitle">Overview</h1></div><div class="top-actions"><span class="local-pill"><span class="status-dot"></span> LOCAL SYSTEM</span><button class="avatar">EE</button></div></header>
+
     <section class="page active" id="page-dashboard">
-      <div class="welcome-row"><div><h2>Room activity at a glance</h2><p>Monitor member movement and occupancy throughout operating hours.</p></div><button class="btn primary" onclick="showPage('monitoring')">◉ &nbsp;Open live monitor</button></div>
+      <div class="welcome-row"><div><h2>Room activity at a glance</h2><p>Entry and exit are processed by separate cameras.</p></div><button class="btn primary" onclick="showPage('cameras')">▣ &nbsp;Manage cameras</button></div>
       <div class="metric-grid">
-        <div class="metric"><div class="metric-top"><span>Total members</span><span class="metric-icon blue">♙</span></div><div class="metric-value" id="metricMembers">—</div><div class="metric-foot">Registered in the system</div></div>
-        <div class="metric"><div class="metric-top"><span>Currently inside</span><span class="metric-icon green">⌂</span></div><div class="metric-value" id="metricInside">—</div><div class="metric-foot"><span class="tiny-dot green-dot"></span> Active open visits</div></div>
-        <div class="metric"><div class="metric-top"><span>Entries today</span><span class="metric-icon purple">↘</span></div><div class="metric-value" id="metricEntries">—</div><div class="metric-foot">Recorded crossing events</div></div>
-        <div class="metric"><div class="metric-top"><span>Unknown detections</span><span class="metric-icon orange">⚑</span></div><div class="metric-value" id="metricUnknown">—</div><div class="metric-foot">Requires staff review</div></div>
+        <div class="metric"><div class="metric-top"><span>Registered members</span><span class="metric-icon blue">♙</span></div><div class="metric-value" id="metricMembers">—</div><div class="metric-foot">Members enrolled in the system</div></div>
+        <div class="metric"><div class="metric-top"><span>Currently inside</span><span class="metric-icon green">⌂</span></div><div class="metric-value" id="metricInside">—</div><div class="metric-foot">Active open visits</div></div>
+        <div class="metric"><div class="metric-top"><span>Entries today</span><span class="metric-icon purple">↘</span></div><div class="metric-value" id="metricEntries">—</div><div class="metric-foot">Recognized at entry camera</div></div>
+        <div class="metric"><div class="metric-top"><span>Unknown detections</span><span class="metric-icon orange">⚑</span></div><div class="metric-value" id="metricUnknown">—</div><div class="metric-foot">Needs staff review</div></div>
+      </div>
+      <div class="camera-card-grid dashboard-cameras">
+        <div class="panel camera-panel"><div class="panel-head"><div><h3>Entry camera</h3><p id="dashEntryStatus">Not connected</p></div><span class="state-pill" id="dashEntryPill">OFFLINE</span></div><div class="camera-preview"><img id="dashboardEntryFeed" alt="Entry camera feed"><div class="camera-overlay"><span>ENTRY · CAM 01</span><span id="dashEntryOverlay">Awaiting camera</span></div></div><div class="panel-bottom"><span id="dashEntrySource">USB camera</span><button class="text-button" onclick="showPage('monitoring')">Open monitor ↗</button></div></div>
+        <div class="panel camera-panel"><div class="panel-head"><div><h3>Exit camera</h3><p id="dashExitStatus">Not connected</p></div><span class="state-pill" id="dashExitPill">OFFLINE</span></div><div class="camera-preview"><img id="dashboardExitFeed" alt="Exit camera feed"><div class="camera-overlay"><span>EXIT · CAM 02</span><span id="dashExitOverlay">Awaiting camera</span></div></div><div class="panel-bottom"><span id="dashExitSource">USB camera</span><button class="text-button" onclick="showPage('monitoring')">Open monitor ↗</button></div></div>
       </div>
       <div class="dashboard-grid">
-        <div class="panel live-panel"><div class="panel-head"><div><h3>Live camera</h3><p>Entrance camera preview</p></div><span class="state-pill" id="cameraPill"><span class="tiny-dot"></span> OFFLINE</span></div><div class="camera-preview"><img id="dashboardFeed" src="/video_feed" alt="Camera preview"><div class="camera-overlay"><span>CAM 01</span><span id="cameraOverlayStatus">Awaiting camera</span></div></div><div class="panel-bottom"><span id="cameraSourceLabel">No source configured</span><button class="text-button" onclick="showPage('monitoring')">Open monitor ↗</button></div></div>
-        <div class="panel activity-panel"><div class="panel-head"><div><h3>Recent activity</h3><p>Latest room events</p></div><button class="text-button" onclick="showPage('logs')">View all ↗</button></div><div id="recentActivity" class="activity-list"><div class="empty">No activity recorded yet.</div></div></div>
+        <div class="panel activity-panel"><div class="panel-head"><div><h3>Recent activity</h3><p>Latest entry and exit events</p></div><button class="text-button" onclick="showPage('logs')">View all ↗</button></div><div id="recentActivity" class="activity-list"><div class="empty">No activity recorded yet.</div></div></div>
+        <div class="panel table-panel"><div class="panel-head"><div><h3>Members currently inside</h3><p>Open visits</p></div><button class="text-button" onclick="showPage('occupancy')">View all ↗</button></div><div id="insidePreview" class="table-wrap"></div></div>
       </div>
-      <div class="panel table-panel"><div class="panel-head"><div><h3>Members currently inside</h3><p>Open visits at this moment</p></div><button class="text-button" onclick="showPage('occupancy')">View occupancy ↗</button></div><div id="insidePreview" class="table-wrap"></div></div>
-      <div class="notice"><span>ⓘ</span><div><strong>Prototype status</strong><p>Face recognition requires the optional AI dependencies and model download. Validate camera angle, lighting, entry/exit direction and accuracy before relying on this system for official records.</p></div></div>
+      <div class="notice"><span>ⓘ</span><div><strong>How two-camera mode works</strong><p>The entry camera records entry when it recognizes a registered member who is not already inside. The exit camera records exit only when an open visit exists. Frame display and recognition run separately to keep the preview responsive. Test in your actual doorway before relying on logs.</p></div></div>
     </section>
+
     <section class="page" id="page-monitoring">
-      <div class="welcome-row"><div><h2>Entrance monitoring</h2><p>Camera stream and recognition status on this workstation.</p></div><div class="button-row"><button class="btn secondary" onclick="cameraAction('stop')">Stop camera</button><button class="btn primary" onclick="cameraAction('start')">▶ Start camera</button></div></div>
-      <div class="monitor-grid"><div class="panel monitor-camera"><div class="panel-head"><div><h3>Camera feed</h3><p id="monitorCameraLabel">Waiting for camera source</p></div><span class="state-pill" id="monitorPill">OFFLINE</span></div><div class="camera-preview big"><img id="monitorFeed" src="/video_feed" alt="Live camera"><div class="camera-overlay"><span>CAM 01 · LIVE</span><span id="monitorStatus">Not started</span></div></div><div class="panel-bottom"><span>Yellow line = configured crossing zone</span><span class="muted">Keep the camera fixed</span></div></div>
-      <div class="panel"><div class="panel-head"><div><h3>Recognition status</h3><p>Service health</p></div></div><div class="health-list"><div><span>Camera connection</span><b id="healthCamera">Not connected</b></div><div><span>Face AI model</span><b id="healthAI">Not initialized</b></div><div><span>Database</span><b class="good">SQLite · Ready</b></div><div><span>Processing mode</span><b>Local workstation</b></div></div><div class="info-box"><strong>Important</strong><p>Recognition and line crossing are experimental. A single camera may miss fast movement, groups, occlusion or someone turning around. Review the logs before operational use.</p></div></div></div>
+      <div class="welcome-row"><div><h2>Live monitoring</h2><p>Separate entry and exit feeds with independent connection status.</p></div><div class="button-row"><button class="btn secondary" onclick="stopAllCameras()">Stop both</button><button class="btn primary" onclick="startAllCameras()">▶ Connect both</button></div></div>
+      <div class="camera-card-grid monitoring-cameras">
+        <div class="panel camera-panel"><div class="panel-head"><div><h3>ENTRY · Camera 01</h3><p id="monEntryLabel">Entry camera</p></div><span class="state-pill" id="monEntryPill">OFFLINE</span></div><div class="camera-preview big"><img id="monitorEntryFeed" alt="Live entry camera"><div class="camera-overlay"><span>ENTRY STREAM</span><span id="monEntryOverlay">Not connected</span></div></div><div class="panel-bottom"><span id="monEntryError">Waiting for camera</span><button class="text-button" onclick="cameraAction('entry','start')">Connect ↗</button></div></div>
+        <div class="panel camera-panel"><div class="panel-head"><div><h3>EXIT · Camera 02</h3><p id="monExitLabel">Exit camera</p></div><span class="state-pill" id="monExitPill">OFFLINE</span></div><div class="camera-preview big"><img id="monitorExitFeed" alt="Live exit camera"><div class="camera-overlay"><span>EXIT STREAM</span><span id="monExitOverlay">Not connected</span></div></div><div class="panel-bottom"><span id="monExitError">Waiting for camera</span><button class="text-button" onclick="cameraAction('exit','start')">Connect ↗</button></div></div>
+      </div>
+      <div class="panel health-panel"><div class="panel-head"><div><h3>Recognition status</h3><p>Local services</p></div></div><div class="health-list"><div><span>Entry camera</span><b id="healthEntry">Not connected</b></div><div><span>Exit camera</span><b id="healthExit">Not connected</b></div><div><span>Face AI model</span><b id="healthAI">Loads on first connection</b></div><div><span>Database</span><b class="good">SQLite · Ready</b></div><div><span>Inference rate</span><b>Rate-limited to reduce stalls</b></div></div></div>
     </section>
+
     <section class="page" id="page-members">
-      <div class="welcome-row"><div><h2>Member directory</h2><p>Manage members and enroll their face template.</p></div><button class="btn primary" onclick="openMemberModal()">＋ Add member</button></div>
+      <div class="welcome-row"><div><h2>Member directory</h2><p>Manage members and enroll a face template.</p></div><button class="btn primary" onclick="openMemberModal()">＋ Add member</button></div>
       <div class="panel"><div class="toolbar"><input id="memberSearch" class="search" placeholder="Search by name or member code…" oninput="renderMembers()"><span id="memberCount" class="muted"></span></div><div id="membersTable" class="table-wrap"></div></div>
     </section>
+
     <section class="page" id="page-logs">
-      <div class="welcome-row"><div><h2>Access logs</h2><p>Chronological entry, exit and unknown detection records.</p></div><a class="btn primary" href="/api/export.csv">↓ Export CSV</a></div>
+      <div class="welcome-row"><div><h2>Access logs</h2><p>Chronological entry, exit and unmatched-face records.</p></div><a class="btn primary" href="/api/export.csv">↓ Export CSV</a></div>
       <div class="panel"><div class="toolbar"><input id="eventSearch" class="search" placeholder="Search event, member or code…" oninput="renderEvents()"><select id="eventFilter" onchange="renderEvents()"><option value="all">All events</option><option>ENTRY</option><option>EXIT</option><option>UNKNOWN</option></select><span id="eventCount" class="muted"></span></div><div id="eventsTable" class="table-wrap"></div></div>
     </section>
+
     <section class="page" id="page-occupancy">
-      <div class="welcome-row"><div><h2>Inside the room</h2><p>Members with an open entry visit.</p></div><button class="btn secondary" onclick="loadAll()">↻ Refresh</button></div>
-      <div class="metric compact"><div class="metric-top"><span>Live occupancy</span><span class="metric-icon green">⌂</span></div><div class="metric-value" id="occupancyTotal">—</div><div class="metric-foot">Open visits in local database</div></div>
-      <div class="panel table-panel"><div class="panel-head"><div><h3>People inside</h3><p>Manual correction is available from the member directory.</p></div></div><div id="insideTable" class="table-wrap"></div></div>
+      <div class="welcome-row"><div><h2>Inside now</h2><p>Members who have an open visit.</p></div><button class="btn secondary" onclick="loadAll()">↻ Refresh</button></div>
+      <div class="metric compact"><div class="metric-top"><span>Current occupancy</span><span class="metric-icon green">⌂</span></div><div class="metric-value" id="occupancyTotal">—</div><div class="metric-foot">Open visits in local database</div></div>
+      <div class="panel table-panel"><div class="panel-head"><div><h3>People inside</h3><p>Manual correction is available in Members.</p></div></div><div id="insideTable" class="table-wrap"></div></div>
     </section>
+
     <section class="page" id="page-unknown">
-      <div class="welcome-row"><div><h2>Unknown person review</h2><p>Unmatched detections that crossed the configured line.</p></div><button class="btn secondary" onclick="loadAll()">↻ Refresh</button></div>
-      <div class="notice"><span>⚑</span><div><strong>Review before action</strong><p>An unknown event does not prove a person is unauthorized. Camera quality, angle, lighting and enrollment quality can cause false matches.</p></div></div>
+      <div class="welcome-row"><div><h2>Unknown person review</h2><p>Unmatched face detections from either camera.</p></div><button class="btn secondary" onclick="loadAll()">↻ Refresh</button></div>
+      <div class="notice"><span>⚑</span><div><strong>Review before taking action</strong><p>An unknown event is not proof that someone is unauthorized. Lighting, camera angle and enrollment quality can affect recognition.</p></div></div>
       <div class="panel"><div id="unknownTable" class="table-wrap"></div></div>
     </section>
+
+    <section class="page" id="page-cameras">
+      <div class="welcome-row"><div><h2>Camera management</h2><p>Detect USB webcams, assign one to Entry and one to Exit, and test each source.</p></div><button class="btn secondary" onclick="discoverCameras(true)">↻ Detect available cameras</button></div>
+      <div class="notice"><span>ⓘ</span><div><strong>Recommended mapping</strong><p>Keep the built-in laptop camera as one role and your external 4K webcam as the other. OpenCV identifies USB cameras by index (0, 1, 2…), not by a guaranteed hardware name. Use Test source to confirm which physical camera each index represents.</p></div></div>
+      <div class="discovery-status" id="discoveryStatus">Click “Detect available cameras” to scan connected webcams.</div>
+      <div class="camera-card-grid management-grid">
+        <div class="panel settings-panel camera-config-card"><div class="panel-head"><div><h3>ENTRY CAMERA</h3><p>Records ENTRY for recognized members</p></div><span class="role-icon entry-role">↘</span></div>
+          <form id="entryCameraForm" onsubmit="saveCamera(event,'entry')">
+            <label>Camera display name</label><input id="entry_name" class="field" value="Entry Camera" required>
+            <label>Input type</label><select id="entry_type" class="field" onchange="updateCameraInput('entry')"><option value="usb">USB webcam</option><option value="rtsp">RTSP / IP camera</option></select>
+            <div id="entry_usb_wrap"><label>Detected USB camera</label><select id="entry_source_usb" class="field"></select><p class="field-help">Select a detected camera index. Test it to verify the physical device.</p></div>
+            <div id="entry_rtsp_wrap" class="hidden"><label>RTSP stream URL</label><input id="entry_source_rtsp" class="field" placeholder="rtsp://user:password@camera-ip:554/stream1"><p class="field-help">Keep any camera password private.</p></div>
+            <label class="check-row"><input id="entry_enabled" type="checkbox" checked> Enable entry camera</label>
+            <div class="button-row camera-actions"><button class="btn secondary" type="button" onclick="testCamera('entry')">Test source</button><button class="btn primary" type="submit">Save camera</button></div>
+            <div class="button-row camera-actions"><button class="btn primary" type="button" onclick="cameraAction('entry','start')">▶ Connect entry</button><button class="btn secondary" type="button" onclick="cameraAction('entry','stop')">Disconnect</button></div>
+            <div class="test-result" id="entry_result"></div>
+          </form>
+        </div>
+        <div class="panel settings-panel camera-config-card"><div class="panel-head"><div><h3>EXIT CAMERA</h3><p>Records EXIT for open visits</p></div><span class="role-icon exit-role">↗</span></div>
+          <form id="exitCameraForm" onsubmit="saveCamera(event,'exit')">
+            <label>Camera display name</label><input id="exit_name" class="field" value="Exit Camera" required>
+            <label>Input type</label><select id="exit_type" class="field" onchange="updateCameraInput('exit')"><option value="usb">USB webcam</option><option value="rtsp">RTSP / IP camera</option></select>
+            <div id="exit_usb_wrap"><label>Detected USB camera</label><select id="exit_source_usb" class="field"></select><p class="field-help">Choose a different index from the entry camera.</p></div>
+            <div id="exit_rtsp_wrap" class="hidden"><label>RTSP stream URL</label><input id="exit_source_rtsp" class="field" placeholder="rtsp://user:password@camera-ip:554/stream1"><p class="field-help">Keep any camera password private.</p></div>
+            <label class="check-row"><input id="exit_enabled" type="checkbox" checked> Enable exit camera</label>
+            <div class="button-row camera-actions"><button class="btn secondary" type="button" onclick="testCamera('exit')">Test source</button><button class="btn primary" type="submit">Save camera</button></div>
+            <div class="button-row camera-actions"><button class="btn primary" type="button" onclick="cameraAction('exit','start')">▶ Connect exit</button><button class="btn secondary" type="button" onclick="cameraAction('exit','stop')">Disconnect</button></div>
+            <div class="test-result" id="exit_result"></div>
+          </form>
+        </div>
+      </div>
+      <div class="panel"><div class="panel-head"><div><h3>Detected devices</h3><p>USB camera indexes found on this PC</p></div><span class="muted">Refresh after connecting or unplugging a camera</span></div><div id="discoveredTable" class="table-wrap"><div class="empty">No scan has been run.</div></div></div>
+    </section>
+
     <section class="page" id="page-settings">
-      <div class="welcome-row"><div><h2>Camera & system settings</h2><p>Configure USB webcam or RTSP IP camera input.</p></div></div>
-      <div class="settings-grid"><div class="panel settings-panel"><div class="panel-head"><div><h3>Camera input</h3><p>Use one camera at a time</p></div></div><form id="settingsForm">
-        <label>Camera type</label><div class="radio-cards"><label class="radio-card"><input type="radio" name="camera_type" value="usb"><span><b>USB webcam</b><small>Connected to this PC</small></span></label><label class="radio-card"><input type="radio" name="camera_type" value="rtsp"><span><b>RTSP / IP camera</b><small>Network CCTV stream</small></span></label></div>
-        <label id="sourceLabel">USB camera index</label><input id="camera_source" class="field" placeholder="0 for default webcam">
-        <p class="field-help">RTSP example: rtsp://username:password@camera-ip:554/stream1. Keep credentials private and do not share screenshots containing them.</p>
-        <div class="two-fields"><div><label>Crossing line (%)</label><input id="line_x_percent" class="field" type="number" min="10" max="90"></div><div><label>Match threshold</label><input id="recognition_threshold" class="field" type="number" min="0.1" max="0.9" step="0.01"></div></div>
-        <div class="two-fields"><div><label>Operating starts</label><input id="operating_start" class="field" type="time"></div><div><label>Operating ends</label><input id="operating_end" class="field" type="time"></div></div>
-        <label class="check-row"><input id="unknown_alerts" type="checkbox"> Record unmatched person events</label>
-        <div class="button-row"><button class="btn primary" type="submit">Save settings</button><button class="btn secondary" type="button" onclick="cameraAction('start')">Save & connect</button></div>
-      </form></div><div class="panel"><div class="panel-head"><div><h3>Local system</h3><p>Where app data is stored</p></div></div><div class="health-list"><div><span>Database</span><b>data/bicep.db</b></div><div><span>Member photos</span><b>data/member_photos/</b></div><div><span>Face templates</span><b>Stored locally</b></div><div><span>Network exposure</span><b class="good">Localhost only</b></div></div><div class="info-box"><strong>Privacy & deployment</strong><p>Get informed consent before collecting biometric data. Restrict access to the PC, protect backups and define retention/deletion rules. Review applicable Indian privacy law and club policy before production use.</p></div><div class="info-box"><strong>AI model licensing</strong><p>Before commercial use, verify the current license terms for InsightFace code and pretrained model weights. This prototype is not a compliance or security certification.</p></div></div></div>
+      <div class="welcome-row"><div><h2>AI & operating settings</h2><p>Recognition threshold and processing rate. Camera assignment is managed separately.</p></div></div>
+      <div class="settings-grid">
+        <div class="panel settings-panel"><div class="panel-head"><div><h3>Recognition settings</h3><p>Lower processing frequency to improve live display smoothness.</p></div></div>
+          <form id="settingsForm">
+            <label>Face match threshold</label><input id="recognition_threshold" class="field" type="number" min="0.1" max="0.95" step="0.01">
+            <p class="field-help">Higher = stricter matching, but may miss enrolled members. Test with your camera and lighting before adjusting.</p>
+            <label>Recognition interval (seconds)</label><input id="recognition_interval" class="field" type="number" min="0.25" max="2" step="0.05">
+            <p class="field-help">0.40 seconds means up to about 2.5 recognition passes per second per shared inference worker. Video capture continues independently.</p>
+            <div class="two-fields"><div><label>Operating starts</label><input id="operating_start" class="field" type="time"></div><div><label>Operating ends</label><input id="operating_end" class="field" type="time"></div></div>
+            <label class="check-row"><input id="unknown_alerts" type="checkbox"> Record unmatched face detections</label>
+            <div class="button-row"><button class="btn primary" type="submit">Save settings</button></div>
+          </form>
+        </div>
+        <div class="panel"><div class="panel-head"><div><h3>Local system health</h3><p>Current runtime information</p></div></div>
+          <div class="health-list"><div><span>Database</span><b>data/tracking.db</b></div><div><span>Camera configs</span><b>data/config.json</b></div><div><span>Member photos</span><b>data/member_photos/</b></div><div><span>Stream strategy</span><b>Capture and AI separated</b></div><div><span>AI provider</span><b id="healthProvider">Checked at startup</b></div></div>
+          <div class="info-box"><strong>Production warning</strong><p>This is a local prototype. Add authentication before network exposure, validate camera coverage, and manually audit recognition and entry/exit logs before operational use. Collect biometric information only with appropriate notice/consent and retention rules.</p></div>
+          <div class="info-box"><strong>Model licensing</strong><p>Check current InsightFace code and pretrained-weight licensing before commercial deployment.</p></div>
+        </div>
+      </div>
     </section>
   </main>
 </div>
+
 <div id="toast" class="toast"></div>
-<div id="memberModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><div><h2 id="modalTitle">Add member</h2><p>Register a club member</p></div><button class="close-btn" onclick="closeMemberModal()">×</button></div><form id="memberForm"><label>Member code *</label><input class="field" id="member_code" required placeholder="e.g. BCP-001"><label>Full name *</label><input class="field" id="member_name" required placeholder="Full name"><label>Email (optional)</label><input class="field" id="member_email" type="email" placeholder="name@example.com"><label>Notes (optional)</label><input class="field" id="member_notes" placeholder="Team / membership notes"><div class="modal-actions"><button class="btn secondary" type="button" onclick="closeMemberModal()">Cancel</button><button class="btn primary" type="submit">Save member</button></div></form><div id="enrollArea" class="enroll-area hidden"><hr><h3>Enroll face photo</h3><p>Upload one clear, front-facing photo. This stores a face embedding locally.</p><input id="facePhoto" type="file" accept="image/*" class="field"><button class="btn primary full" onclick="enrollFace()">Enroll face template</button></div></div></div>
+<div id="memberModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><div><h2 id="modalTitle">Add member</h2><p>Register a member</p></div><button class="close-btn" onclick="closeMemberModal()">×</button></div>
+  <form id="memberForm"><label>Member code *</label><input class="field" id="member_code" required placeholder="e.g. MEM-001"><label>Full name *</label><input class="field" id="member_name" required placeholder="Full name"><label>Email (optional)</label><input class="field" id="member_email" type="email" placeholder="name@example.com"><label>Notes (optional)</label><input class="field" id="member_notes" placeholder="Membership notes"><div class="modal-actions"><button class="btn secondary" type="button" onclick="closeMemberModal()">Cancel</button><button class="btn primary" type="submit">Save member</button></div></form>
+  <div id="enrollArea" class="enroll-area hidden">
+    <hr>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="margin:0;">3-Angle Face Enrollment</h3>
+      <button type="button" class="action-link" id="btnToggleEnrollMode" onclick="toggleEnrollMode()" style="font-size:11px;">Single Photo Mode</button>
+    </div>
+    <p style="margin:6px 0 14px;">Enrolling Front, Left (~30°), and Right (~30°) photos enables fast, robust recognition as members walk past the cameras.</p>
+
+    <div id="multiEnrollWrap">
+      <div class="enroll-grid">
+        <div class="enroll-card" id="slotCardFront">
+          <div class="enroll-card-header">
+            <strong>1. Front View</strong>
+            <span class="pill" id="badgeFront">Required</span>
+          </div>
+          <div class="enroll-preview" id="previewFront"><span>👤 Straight</span></div>
+          <input id="photoFront" type="file" accept="image/*" class="field file-field" onchange="handleEnrollPreview('Front')">
+        </div>
+
+        <div class="enroll-card" id="slotCardLeft">
+          <div class="enroll-card-header">
+            <strong>2. Left Angle</strong>
+            <span class="pill" id="badgeLeft">~30° Turn</span>
+          </div>
+          <div class="enroll-preview" id="previewLeft"><span>👤 Turn Left</span></div>
+          <input id="photoLeft" type="file" accept="image/*" class="field file-field" onchange="handleEnrollPreview('Left')">
+        </div>
+
+        <div class="enroll-card" id="slotCardRight">
+          <div class="enroll-card-header">
+            <strong>3. Right Angle</strong>
+            <span class="pill" id="badgeRight">~30° Turn</span>
+          </div>
+          <div class="enroll-preview" id="previewRight"><span>👤 Turn Right</span></div>
+          <input id="photoRight" type="file" accept="image/*" class="field file-field" onchange="handleEnrollPreview('Right')">
+        </div>
+      </div>
+      <div class="modal-actions" style="margin-top:14px;">
+        <button class="btn secondary" type="button" onclick="closeMemberModal()">Cancel</button>
+        <button class="btn primary" id="btnEnrollMulti" onclick="enrollMulti()">Enroll 3-Angle Profile</button>
+      </div>
+    </div>
+
+    <div id="singleEnrollWrap" class="hidden">
+      <div style="margin:12px 0;">
+        <label style="display:block; font-size:11px; font-weight:600; color:#586577; margin-bottom:6px;">Single face photo</label>
+        <input id="facePhoto" type="file" accept="image/*" class="field">
+      </div>
+      <div class="modal-actions">
+        <button class="btn secondary" type="button" onclick="closeMemberModal()">Cancel</button>
+        <button class="btn primary" onclick="enrollFace()">Enroll single template</button>
+      </div>
+    </div>
+  </div>
+</div></div>
 <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body></html>

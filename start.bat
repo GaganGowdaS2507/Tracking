@@ -1,5 +1,5 @@
 @echo off
-title BICEP AI Room Management
+title Entry Exit Tracking
 cd /d "%~dp0"
 if not exist .venv\Scripts\python.exe (
   echo App environment not found. Run install.bat first.

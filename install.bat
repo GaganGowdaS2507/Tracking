@@ -1,8 +1,8 @@
 @echo off
-title BICEP AI Room Management - Setup
+title Entry Exit Tracking - Setup
 cd /d "%~dp0"
 echo ============================================
-echo   BICEP AI Room Management - Setup
+echo   Entry / Exit Tracking - Setup
 echo ============================================
 where py >nul 2>nul
 if errorlevel 1 (
@@ -25,7 +25,7 @@ python -m pip install -r requirements.txt
 if errorlevel 1 goto fail
 echo.
 echo Setup complete. Run start.bat to launch the app.
-echo On first AI use, InsightFace may download model files from the internet.
+echo InsightFace may download its pretrained model files on first use.
 pause
 exit /b 0
 :fail
