@@ -1,33 +1,19 @@
-﻿# Python
 __pycache__/
 *.py[cod]
-*.pyd
-
-# Virtual environment
 .venv/
 venv/
 env/
-
-# Environment variables and secrets
 .env
 .env.*
 !.env.example
-
-# Local database and biometric data
 data/*.db
 data/*.sqlite
 data/*.sqlite3
 data/config.json
 data/member_photos/
-
-# Logs
 *.log
 logs/
-
-# Editors
 .vscode/
 .idea/
-
-# Operating system
 .DS_Store
 Thumbs.db

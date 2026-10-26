@@ -17,6 +17,7 @@
     <button class="nav" data-page="occupancy"><span>⌂</span> Inside now</button>
     <button class="nav" data-page="unknown"><span>⚑</span> Unknown review <b id="unknownBadge" class="badge">0</b></button>
     <div class="nav-label settings-label">CONFIGURATION</div>
+<button class="nav" data-page="cameras"><span>⌕</span> Camera management</button>
     <button class="nav" data-page="settings"><span>⚙</span> Camera & settings</button>
     <div class="sidebar-bottom"><div class="system-indicator"><span class="status-dot"></span><div><strong id="sidebarStatus">System starting</strong><small>Local workstation</small></div></div><small class="privacy-note">Local-first · Data stored on this PC</small></div>
   </aside>
@@ -60,19 +61,49 @@
       <div class="notice"><span>⚑</span><div><strong>Review before action</strong><p>An unknown event does not prove a person is unauthorized. Camera quality, angle, lighting and enrollment quality can cause false matches.</p></div></div>
       <div class="panel"><div id="unknownTable" class="table-wrap"></div></div>
     </section>
-    <section class="page" id="page-settings">
-      <div class="welcome-row"><div><h2>Camera & system settings</h2><p>Configure USB webcam or RTSP IP camera input.</p></div></div>
-      <div class="settings-grid"><div class="panel settings-panel"><div class="panel-head"><div><h3>Camera input</h3><p>Use one camera at a time</p></div></div><form id="settingsForm">
-        <label>Camera type</label><div class="radio-cards"><label class="radio-card"><input type="radio" name="camera_type" value="usb"><span><b>USB webcam</b><small>Connected to this PC</small></span></label><label class="radio-card"><input type="radio" name="camera_type" value="rtsp"><span><b>RTSP / IP camera</b><small>Network CCTV stream</small></span></label></div>
-        <label id="sourceLabel">USB camera index</label><input id="camera_source" class="field" placeholder="0 for default webcam">
-        <p class="field-help">RTSP example: rtsp://username:password@camera-ip:554/stream1. Keep credentials private and do not share screenshots containing them.</p>
-        <div class="two-fields"><div><label>Crossing line (%)</label><input id="line_x_percent" class="field" type="number" min="10" max="90"></div><div><label>Match threshold</label><input id="recognition_threshold" class="field" type="number" min="0.1" max="0.9" step="0.01"></div></div>
-        <div class="two-fields"><div><label>Operating starts</label><input id="operating_start" class="field" type="time"></div><div><label>Operating ends</label><input id="operating_end" class="field" type="time"></div></div>
-        <label class="check-row"><input id="unknown_alerts" type="checkbox"> Record unmatched person events</label>
-        <div class="button-row"><button class="btn primary" type="submit">Save settings</button><button class="btn secondary" type="button" onclick="cameraAction('start')">Save & connect</button></div>
-      </form></div><div class="panel"><div class="panel-head"><div><h3>Local system</h3><p>Where app data is stored</p></div></div><div class="health-list"><div><span>Database</span><b>data/bicep.db</b></div><div><span>Member photos</span><b>data/member_photos/</b></div><div><span>Face templates</span><b>Stored locally</b></div><div><span>Network exposure</span><b class="good">Localhost only</b></div></div><div class="info-box"><strong>Privacy & deployment</strong><p>Get informed consent before collecting biometric data. Restrict access to the PC, protect backups and define retention/deletion rules. Review applicable Indian privacy law and club policy before production use.</p></div><div class="info-box"><strong>AI model licensing</strong><p>Before commercial use, verify the current license terms for InsightFace code and pretrained model weights. This prototype is not a compliance or security certification.</p></div></div></div>
+    
+    <section class="page" id="page-cameras">
+      <div class="welcome-row"><div><h2>Camera management</h2><p>Discover USB cameras, configure each source independently, test it, then connect entry and exit streams.</p></div><button class="btn primary" onclick="discoverCameras()">↻ Detect available cameras</button></div>
+      <div class="notice"><span>ⓘ</span><div><strong>Camera index note</strong><p>Windows camera indexes are not guaranteed: test each camera and select different sources for entry and exit. If one USB camera is used for both roles, detection can conflict.</p></div></div>
+      <div class="dual-camera-grid">
+        <div class="panel camera-manager-card">
+          <div class="panel-head"><div><h3>Entry camera</h3><p>Records ENTRY events</p></div><span class="state-pill" id="cam-entry-pill">OFFLINE</span></div>
+          <div class="camera-preview manager-preview"><img id="cam-entry-feed" src="/video_feed/entry" alt="entry camera preview"><div class="camera-overlay"><span>ENTRY CAMERA</span><span id="cam-entry-status">Not connected</span></div></div>
+          <div class="camera-form">
+            <label>Camera name</label><input id="cam-entry-name" class="field" maxlength="80" value="Entry Camera">
+            <label>Source type</label><select id="cam-entry-type" class="field" onchange="toggleCameraSource('entry')"><option value="usb">USB camera</option><option value="rtsp">RTSP / IP camera</option></select>
+            <div id="cam-entry-usb-wrap"><label>Detected USB camera</label><select id="cam-entry-usb" class="field"><option value="0">USB camera 0</option><option value="1">USB camera 1</option><option value="2">USB camera 2</option><option value="3">USB camera 3</option><option value="4">USB camera 4</option><option value="5">USB camera 5</option></select></div>
+            <div id="cam-entry-rtsp-wrap" class="hidden"><label>RTSP / IP stream URL</label><input id="cam-entry-rtsp" class="field" placeholder="rtsp://camera-ip:554/stream"></div>
+            <label class="check-row"><input type="checkbox" id="cam-entry-enabled" checked> Enable this camera role</label>
+            <div class="button-row wrap"><button class="btn secondary" onclick="saveCamera('entry')">Save</button><button class="btn secondary" onclick="testCamera('entry')">Test source</button><button class="btn primary" onclick="cameraRoleAction('entry','start')">Connect</button><button class="btn secondary" onclick="cameraRoleAction('entry','stop')">Disconnect</button></div>
+          </div>
+        </div><div class="panel camera-manager-card">
+          <div class="panel-head"><div><h3>Exit camera</h3><p>Records EXIT events</p></div><span class="state-pill" id="cam-exit-pill">OFFLINE</span></div>
+          <div class="camera-preview manager-preview"><img id="cam-exit-feed" src="/video_feed/exit" alt="exit camera preview"><div class="camera-overlay"><span>EXIT CAMERA</span><span id="cam-exit-status">Not connected</span></div></div>
+          <div class="camera-form">
+            <label>Camera name</label><input id="cam-exit-name" class="field" maxlength="80" value="Exit Camera">
+            <label>Source type</label><select id="cam-exit-type" class="field" onchange="toggleCameraSource('exit')"><option value="usb">USB camera</option><option value="rtsp">RTSP / IP camera</option></select>
+            <div id="cam-exit-usb-wrap"><label>Detected USB camera</label><select id="cam-exit-usb" class="field"><option value="0">USB camera 0</option><option value="1">USB camera 1</option><option value="2">USB camera 2</option><option value="3">USB camera 3</option><option value="4">USB camera 4</option><option value="5">USB camera 5</option></select></div>
+            <div id="cam-exit-rtsp-wrap" class="hidden"><label>RTSP / IP stream URL</label><input id="cam-exit-rtsp" class="field" placeholder="rtsp://camera-ip:554/stream"></div>
+            <label class="check-row"><input type="checkbox" id="cam-exit-enabled" checked> Enable this camera role</label>
+            <div class="button-row wrap"><button class="btn secondary" onclick="saveCamera('exit')">Save</button><button class="btn secondary" onclick="testCamera('exit')">Test source</button><button class="btn primary" onclick="cameraRoleAction('exit','start')">Connect</button><button class="btn secondary" onclick="cameraRoleAction('exit','stop')">Disconnect</button></div>
+          </div>
+        </div>
+      </div>
+      <p class="field-help" id="cameraDiscoveryMessage">Camera discovery has not run yet.</p>
     </section>
-  </main>
+    <section class="page" id="page-settings">
+      <div class="welcome-row"><div><h2>Recognition settings</h2><p>Adjust recognition behavior shared by both cameras. Camera sources are managed separately.</p></div></div>
+      <div class="settings-grid"><div class="panel settings-panel"><div class="panel-head"><div><h3>Recognition behavior</h3><p>Conservative defaults reduce incorrect matches.</p></div></div>
+        <form id="settingsForm">
+          <div class="two-fields"><div><label>Match threshold</label><input id="recognition_threshold" class="field" type="number" min="0.1" max="0.99" step="0.01"></div><div><label>Base recognition interval (seconds)</label><input id="recognition_interval" class="field" type="number" min="0.1" max="2" step="0.05"></div></div>
+          <div class="two-fields"><div><label>Operating starts</label><input id="operating_start" class="field" type="time"></div><div><label>Operating ends</label><input id="operating_end" class="field" type="time"></div></div>
+          <label class="check-row"><input id="unknown_alerts" type="checkbox"> Record unknown-person events</label>
+          <button class="btn primary" type="submit">Save recognition settings</button>
+        </form>
+      </div><div class="panel"><div class="panel-head"><div><h3>Privacy & data</h3><p>Local workstation storage</p></div></div><div class="health-list"><div><span>Database</span><b>data/bicep.db</b></div><div><span>Embeddings</span><b>Stored locally</b></div><div><span>Camera streams</span><b>Processed locally</b></div></div><div class="info-box"><strong>Prototype warning</strong><p>Validate biometric matching, liveness, camera framing and event correctness before operational use. Obtain appropriate consent and define retention/deletion rules. Add authentication before exposing the app beyond localhost.</p></div></div></div>
+    </section>
+</main>
 </div>
 <div id="toast" class="toast"></div>
 <div id="memberModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><div><h2 id="modalTitle">Add member</h2><p>Register a club member</p></div><button class="close-btn" onclick="closeMemberModal()">×</button></div><form id="memberForm"><label>Member code *</label><input class="field" id="member_code" required placeholder="e.g. BCP-001"><label>Full name *</label><input class="field" id="member_name" required placeholder="Full name"><label>Email (optional)</label><input class="field" id="member_email" type="email" placeholder="name@example.com"><label>Notes (optional)</label><input class="field" id="member_notes" placeholder="Team / membership notes"><div class="modal-actions"><button class="btn secondary" type="button" onclick="closeMemberModal()">Cancel</button><button class="btn primary" type="submit">Save member</button></div></form><div id="enrollArea" class="enroll-area hidden"><hr><h3>Enroll face photo</h3><p>Upload one clear, front-facing photo. This stores a face embedding locally.</p><input id="facePhoto" type="file" accept="image/*" class="field"><button class="btn primary full" onclick="enrollFace()">Enroll face template</button></div></div></div>
